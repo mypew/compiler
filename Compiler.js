@@ -15,6 +15,8 @@ class Compiler {
     switch (message.body.type_request) {
       case 'lexer':
         return await Lexer.GetTokens(message.body.code);
+      case 'syntax':
+        return await Syntax.GetTree(message.body.code);
       default:
         return "Bad type_request";
     }

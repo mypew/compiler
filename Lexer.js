@@ -6,14 +6,14 @@
  */
 class Lexer {
   /** Константы */
-  // Итератор
+  // Итератор(хранит в себе индекс символа в потоке, номер строки, индекс символа в строке, стэк символов)
   static get #ITERATOR() {return{
     count: 0,
     line: 1,
     line_point: 0,
     stack: ""
   }};
-  // Массив правил лексического анализа
+  // Массив правил формирования токенов
   static get #RULES() {return [
     {code: 0, name: "разделитель", requests: [{request: / /, alt_name: "пробел"}, 
                                             {request: /\n/, alt_name: "переход_строки"}, 
@@ -51,13 +51,14 @@ class Lexer {
   ]};
 
   /**
-  * Функция, которая переводит код из его первоначального вида в поток лексем
+  * Функция, которая переводит код из его первоначального вида в поток токенов
   */
   static async GetTokens(code) {
     let tokens = [];
     let rule;
     let iterator = this.#ITERATOR;
-    let stack; // стек символов
+    // Стэк символов
+    let stack;
 
     while(iterator.count <= code.length) {
       // добавляем в стек символов символ из потока по индексу count, если он не достиг конца
@@ -75,7 +76,7 @@ class Lexer {
         // Получаем правило на основе стека символов с прошлого шага
         rule = await this.#SearchRule(iterator.stack);
 
-        // Если правило ровно null и размер стека равен 1, то возвращаем ошибочную лексему(проверка на неизвестный символ)
+        // Если правило ровно null и размер стека равен 1, то возвращаем ошибочной токен(проверка на неизвестный символ)
         if (!rule && iterator.stack.length == 1) {
           return this.#GetBadToken(iterator, iterator.stack);
         }
@@ -83,8 +84,10 @@ class Lexer {
         // Цикл, который проверяет, есть ли альтернативные имена у правила, если да, то меняем(" " -> "пробел")
         for(let req of rule.requests) iterator.stack.match(req.request) ? req.alt_name ? rule.text = req.alt_name : rule.text = iterator.stack : null;
         
-        // Формируем лексему из правила и добавляем в массив лексем
-        await this.#SetToken(tokens, rule, iterator);
+        // Формируем токен из правила
+        let token = await this.#CreateToken(rule, iterator);
+        // Добавляем токен в массив токенов
+        await this.#AddToken(tokens, token);
 
         // Если мы достигли конца строки, то переходим на новую
         if(iterator.stack == '\n') {
@@ -102,6 +105,17 @@ class Lexer {
     }
 
     return tokens;
+  }
+
+  /**
+  * Функция, которая возвращает правило по его коду
+  */
+  static async GetRule(code) {
+    for(let rule of this.#RULES) {
+      if(rule.code == code) return rule;
+    }
+
+    return null;
   }
 
   /**
@@ -125,12 +139,19 @@ class Lexer {
   /**
   * Функция, которая добавлет токен в массив токенов
   */
-  static async #SetToken(tokens, rule, iterator) {
-    tokens.push({line: iterator.line, code: rule.code, code_name: rule.name, text: rule.text, symbols: `С ${iterator.line_point+1-iterator.stack.length} по ${iterator.line_point} символ`});
+  static async #CreateToken(rule, iterator) {
+    return {line: iterator.line, code: rule.code, code_name: rule.name, text: rule.text, symbols: `С ${iterator.line_point+1-iterator.stack.length} по ${iterator.line_point} символ`};
   }
 
   /**
-  * Функция, которая возвращает лексему ошибку
+  * Функция, которая добавлет токен в массив токенов
+  */
+  static async #AddToken(tokens, token) {
+    tokens.push(token);
+  }
+
+  /**
+  * Функция, которая возвращает токен ошибку
   */
   static async #GetBadToken(iterator, string) {
     return [{line: iterator.line, code: -1, code_name: "error_lexical", text: string, symbols: `С ${iterator.line_point} по ${iterator.line_point} символ`}];
