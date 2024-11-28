@@ -87,7 +87,7 @@ class Syntax {
 
     // Добавляем в стэк узла код токена, если он задан
     if(node) tree.stack.push(node.code);
-    if(tree.stack.length < 4)console.log(tree);
+    console.log(tree);
     console.log(node);
     console.log(tree.stack);
 
@@ -117,7 +117,7 @@ class Syntax {
     // Перебираем массив условий "И"
     for(let i = 0; i < description.length; i++) {
       // Условие выполняется, если стэк больше размера правила или найдено несовпадение и токен терминальный или токен ссылается на самого себя
-      if(description.length < tree.stack.length || description[i].code != tree.stack[i] && description[i].type == this.#TERMINAL || description[i].code != tree.stack[i] && description[i].code == tree.code) {
+      if(tree.stack.length == 0 || description[i].code != tree.stack[i] && description[i].type == this.#NONTERMINAL && !node || description.length < tree.stack.length || description[i].code != tree.stack[i] && description[i].type == this.#TERMINAL || description[i].code != tree.stack[i] && description[i].code == tree.code) {
         tree.description_number++;
         if(node) tree.stack.pop();
         tree = await this.#AddNode(tree, node);
@@ -128,7 +128,9 @@ class Syntax {
         let rule = await this.#GetRule(description[i].code);
         let node_d = await this.#CreateNode(rule.code, rule.name, this.#NONTERMINAL, rule.descriptions, tree);
         if(node) tree.stack.pop();
-        for(let j = i; j < tree.stack.length; j++) node_d.stack.push(tree.stack[j]);
+        let stack_r = [];
+        for(let j = i; j < tree.stack.length; j++) stack_r.push(tree.stack.pop());
+        for(let j = i; j < tree.stack.length; j++) node_d.stack.push(stack_r.pop());
         tree.nodes.push(node_d);
         tree = node_d;
         tree = await this.#AddNode(tree, node);
@@ -155,6 +157,7 @@ class Syntax {
             tree.nodes = nodes;
 
             tree.stack = [tree.code];
+            //tree.description_number++;
             tree = await this.#AddNode(tree, null);
           }
           else {
