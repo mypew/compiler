@@ -14,7 +14,7 @@ class Compiler {
     // Проверяем тип запроса
     switch (message.body.type_request) {
       case 'lexer':
-        return await Lexer.GetTokens(message.body.code);
+        return await Lexer.CodeInTokens(message.body.code);
       case 'syntax':
         return await Syntax.GetTree(message.body.code);
       default:
