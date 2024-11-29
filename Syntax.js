@@ -11,6 +11,9 @@ class Syntax {
   static get #TERMINAL() {return 0};
   // Нетерминальный тип токенов(токены, собирающиеся из других токенов)
   static get #NONTERMINAL() {return 1};
+
+  first_error = null;
+  
   // Массив правил формирования нетерминальных токенов
   static get #RULES() {return [
     {code: 31, name: 'программа', descriptions: [[{type: this.#NONTERMINAL, code: 32},{type: this.#NONTERMINAL, code: 33},{type: this.#NONTERMINAL, code: 34},{type: this.#NONTERMINAL, code: 35}]]},
@@ -19,19 +22,43 @@ class Syntax {
                                                       [{type: this.#NONTERMINAL, code: 33},{type: this.#NONTERMINAL, code: 36}]]},
     {code: 34, name: 'раздел_переменных', descriptions: [[{type: this.#TERMINAL, code: 28},{type: this.#NONTERMINAL, code: 37}],
                                                         [{type: this.#NONTERMINAL, code: 34},{type: this.#NONTERMINAL, code: 37}]]},
-    {code: 35, name: 'тело_программы', descriptions: [[{type: this.#TERMINAL, code: 25},{type: this.#NONTERMINAL, code: 38},{type: this.#TERMINAL, code: 26},{type: this.#TERMINAL, code: 17}]]},
+    {code: 35, name: 'тело_программы', descriptions: [[{type: this.#TERMINAL, code: 25},{type: this.#NONTERMINAL, code: 38},{type: this.#NONTERMINAL, code: 51},{type: this.#TERMINAL, code: 17}]]},
     {code: 36, name: 'объявление_константы', descriptions: [[{type: this.#TERMINAL, code: 30},{type: this.#TERMINAL, code: 16},{type: this.#NONTERMINAL, code: 39},{type: this.#TERMINAL, code: 14}]]},
     {code: 37, name: 'присвоение_типа', descriptions: [[{type: this.#NONTERMINAL, code: 40},{type: this.#TERMINAL, code: 16},{type: this.#NONTERMINAL, code: 41},{type: this.#TERMINAL, code: 14}]]},
     {code: 38, name: 'операции', descriptions:  [[{type: this.#NONTERMINAL, code: 42}],
-                                                [{type: this.#NONTERMINAL, code: 38},{type: this.#NONTERMINAL, code: 42}]]},
+                                                [{type: this.#NONTERMINAL, code: 38},{type: this.#TERMINAL, code: 14},{type: this.#NONTERMINAL, code: 42}]]},
     {code: 39, name: 'присвоение_значения_константе', descriptions: [[{type: this.#TERMINAL, code: 19},{type: this.#TERMINAL, code: 11},{type: this.#TERMINAL, code: 1}],
                                                                     [{type: this.#TERMINAL, code: 18},{type: this.#TERMINAL, code: 11},{type: this.#TERMINAL, code: 3}]]},
     {code: 40, name: 'блок_идентификаторов', descriptions:  [[{type: this.#TERMINAL, code: 30}],
                                                             [{type: this.#NONTERMINAL, code: 40},{type: this.#TERMINAL, code: 15},{type: this.#TERMINAL, code: 30}]]},
     {code: 41, name: 'тип_данных', descriptions: [[{type: this.#TERMINAL, code: 19}],
                                                   [{type: this.#TERMINAL, code: 18}]]},
-    {code: 42, name: 'операция', descriptions: [[]]},
-  ]};
+    {code: 42, name: 'операция', descriptions: [[{type: this.#NONTERMINAL, code: 43}],
+                                                [{type: this.#NONTERMINAL, code: 44}],
+                                                [{type: this.#NONTERMINAL, code: 45}]]},
+    {code: 43, name: 'присваивание', descriptions: [[{type: this.#TERMINAL, code: 30}, {type: this.#TERMINAL, code: 4}, {type: this.#NONTERMINAL, code: 52}]]},
+    {code: 44, name: 'цикл', descriptions: [[{type: this.#TERMINAL, code: 23},{type: this.#NONTERMINAL, code: 48},{type: this.#TERMINAL, code: 24},{type: this.#NONTERMINAL, code: 49}]]},
+    {code: 45, name: 'условие', descriptions: [[{type: this.#NONTERMINAL, code: 46}]]},
+    {code: 46, name: 'раздел_условия', descriptions: [[{type: this.#TERMINAL, code: 21},{type: this.#NONTERMINAL, code: 48},{type: this.#TERMINAL, code: 20},{type: this.#NONTERMINAL, code: 49}],
+                                                      [{type: this.#NONTERMINAL, code: 46},{type: this.#TERMINAL, code: 22},{type: this.#NONTERMINAL, code: 49}]]},
+    {code: 47, name: 'данные', descriptions: [[{type: this.#TERMINAL, code: 1}],
+                                              [{type: this.#TERMINAL, code: 3}],
+                                              [{type: this.#TERMINAL, code: 30}]]},
+    {code: 48, name: 'выражение', descriptions: [[{type: this.#TERMINAL, code: 12},{type: this.#NONTERMINAL, code: 47},{type: this.#NONTERMINAL, code: 50},{type: this.#NONTERMINAL, code: 47},{type: this.#TERMINAL, code: 13}]]},
+    {code: 49, name: 'блок_кода', descriptions:  [[{type: this.#NONTERMINAL, code: 42}],
+                                                  [{type: this.#TERMINAL, code: 25},{type: this.#NONTERMINAL, code: 38},{type: this.#NONTERMINAL, code: 51}]]},
+    {code: 50, name: 'оператор_сравнения', descriptions: [[{type: this.#TERMINAL, code: 9}],
+                                                          [{type: this.#TERMINAL, code: 10}],
+                                                          [{type: this.#TERMINAL, code: 11}]]},
+    {code: 51, name: 'конструкция_конец', descriptions:  [[{type: this.#TERMINAL, code: 26}],
+                                                          [{type: this.#TERMINAL, code: 14},{type: this.#TERMINAL, code: 26}]]},        
+    {code: 52, name: 'значение', descriptions: [[{type: this.#NONTERMINAL, code: 47}],
+                                                [{type: this.#NONTERMINAL, code: 52},{type: this.#NONTERMINAL, code: 53},{type: this.#NONTERMINAL, code: 47}]]},   
+    {code: 53, name: 'арифметический_оператор', descriptions:  [[{type: this.#TERMINAL, code: 8}], 
+                                                                [{type: this.#TERMINAL, code: 7}],
+                                                                [{type: this.#TERMINAL, code: 6}], 
+                                                                [{type: this.#TERMINAL, code: 5}]]},                                                                                                                  
+]};
 
   /**
   * Функция, которая возвращает синтаксическое дерево
@@ -54,10 +81,17 @@ class Syntax {
         //console.log(await this.#StrTree(tree, 0));
       }
     }
-    tree = await this.#UpTree(tree);
-    console.log(await this.#StrTree(tree, 0));
 
-    return await this.#StrTree(tree, 0);
+    //tree = await this.#UpTree(tree);
+    let result;
+    
+    if(tree.parent != null) result = 'древо не законечно'
+    else if(!this.first_error) result =  await this.#StrTree(tree, 0);
+    else result = this.first_error;
+
+    console.log(result);
+
+    return result;
   }
 
   /**
@@ -87,8 +121,8 @@ class Syntax {
 
     // Добавляем в стэк узла код токена, если он задан
     if(node) tree.stack.push(node.code);
-    console.log(tree);
-    console.log(node);
+    //console.log(tree);
+    //console.log(node);
     console.log(tree.stack);
 
     // Условие выполняется, если закончились условия "или" у узла
@@ -117,8 +151,11 @@ class Syntax {
     // Перебираем массив условий "И"
     for(let i = 0; i < description.length; i++) {
       // Условие выполняется, если стэк больше размера правила или найдено несовпадение и токен терминальный или токен ссылается на самого себя
-      if(tree.stack.length == 0 || description[i].code != tree.stack[i] && description[i].type == this.#NONTERMINAL && !node || description.length < tree.stack.length || description[i].code != tree.stack[i] && description[i].type == this.#TERMINAL || description[i].code != tree.stack[i] && description[i].code == tree.code) {
+      if(tree.stack.length == 0 || description[i].code != tree.stack[i] && description[i].type == this.#NONTERMINAL && !node || description[i].code != tree.stack[i] && description[i].type == this.#TERMINAL || description[i].code != tree.stack[i] && description[i].code == tree.code) {
         tree.description_number++;
+        if(!this.first_error && node) {
+          this.first_error = `Получен (${node.name}), а ожидался (${(description[i].type == this.#TERMINAL) ? (await Lexer.GetRule(description[i].code)).name: (await this.#GetRule(description[i].code)).name})`;
+        }
         if(node) tree.stack.pop();
         tree = await this.#AddNode(tree, node);
         break;
@@ -137,9 +174,10 @@ class Syntax {
         break;
       }
       // Условие выполняется, когда доходим до границ стэка
-      else if(i == tree.stack.length-1) {
+      else if(i == tree.stack.length-1 || i == description.length-1) {
+        this.first_error = null;
         // Условие выполняется в том случае, если нетерминальный токен полностью собран
-        if(description.length == tree.stack.length) {
+        if(description.length <= tree.stack.length) {
           if(description[0].code != tree.code) {
             let nodes = [];
             let count_nonterminal = 0;
@@ -156,18 +194,20 @@ class Syntax {
             }
             tree.nodes = nodes;
 
-            tree.stack = [tree.code];
-            //tree.description_number++;
+            let new_stack = [tree.code];
+            for(let j = description.length; j < tree.stack.length; j++) new_stack.push(tree.stack[j]);
+            tree.stack = new_stack;
+
             tree = await this.#AddNode(tree, null);
           }
           else {
             let nodes_r = [];
             let nodes = [];
             let count_nonterminal = 0;
-            for(let i = 1; i < description.length; i++) {
-              if(description[i].type == this.#NONTERMINAL) nodes.push(tree.nodes.pop());
+            for(let j = 1; j < description.length; j++) {
+              if(description[j].type == this.#NONTERMINAL) nodes.push(tree.nodes.pop());
             }
-            for(let i = 0; i < nodes.length; i++) {
+            for(let j = 1; j < description.length; j++) {
               nodes_r.push(nodes.pop());
             }
             for(let j = 1; j < description.length; j++) {
@@ -183,7 +223,10 @@ class Syntax {
             }
             tree.nodes = tree.nodes.concat(nodes);
 
-            tree.stack = [tree.code];
+            let new_stack = [tree.code];
+            for(let j = description.length; j < tree.stack.length; j++) new_stack.push(tree.stack[j]);
+            tree.stack = new_stack;
+
             tree = await this.#AddNode(tree, null);
           }
         }
