@@ -107,7 +107,7 @@ class Tree {
             let count_nonterminal = 0;
             for(let j = 0; j < rule.length; j++) {
               if((await Token.GetToken(rule[j])).type == Token.TERMINAL) {
-                let node = new Tree(await Token.GetToken(rule[j]),tree);
+                let node = new Tree(tree.stack[j],tree);
                 nodes.push(node);
               }
               else if((await Token.GetToken(rule[j])).type == Token.NONTERMINAL) {
@@ -137,7 +137,7 @@ class Tree {
             }
             for(let j = 1; j < rule.length; j++) {
               if((await Token.GetToken(rule[j])).type == Token.TERMINAL) {
-                let node = new Tree(await Token.GetToken(rule[j]),tree);
+                let node = new Tree(tree.stack[j],tree);
                 nodes.push(node);
               }
               else if((await Token.GetToken(rule[j])).type == Token.NONTERMINAL) {
@@ -181,8 +181,12 @@ class Tree {
    */
   static async StrTree(tree, lvl) {
     if(typeof tree == 'string') return tree;
+    
+    let name;
+    if(tree.token.type == Token.TERMINAL) name = `${tree.token.name}( ${tree.token.text} )`;
+    else name = `${tree.token.name}`;
 
-    let result = `${await this.#StrTreeIndent(lvl)}+-${tree.token.name}\n`;
+    let result = `${await this.#StrTreeIndent(lvl)}+-${name}\n`;
 
     for(let node of tree.nodes) {
       result += `${await this.#StrTreeIndent(lvl)}\n`;

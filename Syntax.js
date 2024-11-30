@@ -26,7 +26,9 @@ class Syntax extends Lexer {
     }
 
     // Проверяем дерево на ошибки
-    tree = Tree.ErrorCheck(tree);
+    tree = await Tree.ErrorCheck(tree);
+
+    console.log(await Tree.StrTree(tree, 0));
 
     return tree;
   }
