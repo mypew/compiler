@@ -99,7 +99,7 @@ class Token {
   static async CreateLexerToken(token, line, line_index, length) {
     delete token.rules;
     token.line = line;
-    token.symbols = `С ${line_index+1-length} по ${line_index} символ`;
+    token.symbols = `с ${line_index+1-length} по ${line_index} символ`;
 
     return token;
   }
