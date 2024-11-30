@@ -5,11 +5,11 @@
  * Класс, отвечающий за токены(лексемы)
  */
 class Token {
-  // Константа терминальный тип токена(полноценный токен)
+  // Терминальный тип токена(полноценный токен)
   static get TERMINAL() {return 0};
-  // Константа нетерминальный тип токена(токен, состоящий из нескольки токенов)
+  // Нетерминальный тип токена(токен, состоящий из нескольки токенов)
   static get NONTERMINAL() {return 1};
-  // Константа таблица всех возможных видов токенов и их правила формирования
+  // Таблица всех возможных видов токенов и их правила формирования
   static get #TABLE_TOKENS() {return [
     {code: 0,   name: "разделитель",                          type: Token.TERMINAL,    rules: [{regular: / /,      alt_name: "пробел"}, {regular: /\n/, alt_name: "переход_строки"}, {regular: /\t/, alt_name: "знак_табуляции"}]},
     {code: 1,   name: "целое_число",                          type: Token.TERMINAL,    rules: [{regular: /\d*/,    alt_name: null}]},
@@ -83,9 +83,7 @@ class Token {
 
     for(let token of Token.#TABLE_TOKENS) {
       for(let rule of token.rules) {
-        // Получаем результат проверки текста на регулярку
         let match = text.match(rule.regular);
-        // Если результат идентичен тексту, то возвращаем токен
         if(match && match[0] == text) return token;
       }
     }
